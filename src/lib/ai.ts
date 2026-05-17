@@ -100,7 +100,7 @@ Generate your response now. Set escalation_flag = true only if this cannot be re
   });
 
   const { object } = await generateObject({
-    model: google("gemini-1.5-flash"),
+    model: google("gemini-flash-latest"),
     system: systemPrompt,
     messages,
     schema: OutputSchema,
