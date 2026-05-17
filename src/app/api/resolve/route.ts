@@ -41,14 +41,14 @@ export async function POST(req: Request) {
     await prisma.doubt.update({
       where: { id: dbDoubt.id },
       data: {
-        responseText: aiResponse.response_text,
-        rootCause: aiResponse.root_cause,
-        resolutionConfidence: aiResponse.resolution_confidence,
-        conceptLink: aiResponse.concept_link,
-        codeSnippet: aiResponse.code_snippet,
-        escalationFlag: aiResponse.escalation_flag,
-        escalationReason: aiResponse.escalation_reason,
-        status: aiResponse.escalation_flag ? "escalated" : "resolved",
+        responseText: aiResponse.responseText,
+        rootCause: aiResponse.rootCause,
+        resolutionConfidence: aiResponse.resolutionConfidence,
+        conceptLink: aiResponse.conceptLink,
+        codeSnippet: aiResponse.codeSnippet,
+        escalationFlag: aiResponse.escalationFlag,
+        escalationReason: aiResponse.escalationReason,
+        status: aiResponse.escalationFlag ? "escalated" : "resolved",
       },
     });
 

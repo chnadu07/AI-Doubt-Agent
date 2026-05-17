@@ -73,18 +73,15 @@ export default function BlackEyeChat() {
     };
 
     let aiContent = chat.responseText || "";
-    if (chat.codeSnippet) {
+    if (chat.codeSnippet && !aiContent.includes("```")) {
       aiContent += `\n\n\`\`\`\n${chat.codeSnippet}\n\`\`\``;
     }
-
-    const extras: string[] = [];
-    if (chat.rootCause && chat.rootCause !== "Architectural Question") {
-      extras.push(`> **Root cause:** ${chat.rootCause}`);
+    if (chat.rootCause && chat.rootCause !== "Architectural Question" && !aiContent.includes("**Root cause:**")) {
+      aiContent += `\n\n> **Root cause:** ${chat.rootCause}`;
     }
-    if (chat.conceptLink) {
-      extras.push(`> **Reference:** ${chat.conceptLink}`);
+    if (chat.conceptLink && !aiContent.includes("**Reference:**")) {
+      aiContent += `\n\n> **Reference:** ${chat.conceptLink}`;
     }
-    if (extras.length) aiContent += "\n\n" + extras.join("\n");
 
     const aiMsg: Message = {
       id: chat.id + "-ai",
@@ -141,24 +138,7 @@ export default function BlackEyeChat() {
         if (json.success) {
           const ai = json.aiResponse;
 
-          /* Combine response_text + code_snippet into a single streamed message */
-          let fullContent = ai.response_text || "";
-          if (ai.code_snippet) {
-            fullContent += `\n\n\`\`\`\n${ai.code_snippet}\n\`\`\``;
-          }
-
-          /* Add metadata footer */
-          const extras: string[] = [];
-          if (ai.root_cause && ai.root_cause !== "Architectural Question") {
-            extras.push(`> **Root cause:** ${ai.root_cause}`);
-          }
-          if (ai.concept_link) {
-            extras.push(`> **Reference:** ${ai.concept_link}`);
-          }
-          if (ai.follow_up_question) {
-            extras.push(`\n*Follow-up: ${ai.follow_up_question}*`);
-          }
-          if (extras.length) fullContent += "\n\n" + extras.join("\n");
+          const fullContent = ai.responseText || "";
 
           const aiMsgId = uid();
 
@@ -262,22 +242,7 @@ export default function BlackEyeChat() {
         if (json.success) {
           const ai = json.aiResponse;
 
-          let fullContent = ai.response_text || "";
-          if (ai.code_snippet) {
-            fullContent += `\n\n\`\`\`\n${ai.code_snippet}\n\`\`\``;
-          }
-
-          const extras: string[] = [];
-          if (ai.root_cause && ai.root_cause !== "Architectural Question") {
-            extras.push(`> **Root cause:** ${ai.root_cause}`);
-          }
-          if (ai.concept_link) {
-            extras.push(`> **Reference:** ${ai.concept_link}`);
-          }
-          if (ai.follow_up_question) {
-            extras.push(`\n*Follow-up: ${ai.follow_up_question}*`);
-          }
-          if (extras.length) fullContent += "\n\n" + extras.join("\n");
+          const fullContent = ai.responseText || "";
 
           const aiMsgId = uid();
 
