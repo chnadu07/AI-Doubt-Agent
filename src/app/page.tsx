@@ -221,6 +221,123 @@ export default function BlackEyeChat() {
     [thinking, fetchHistory]
   );
 
+  /* Edit prompt & regenerate AI response handler */
+  const handleEditMessage = useCallback(
+    async (messageId: string, newText: string) => {
+      if (!newText.trim() || thinking) return;
+
+      const msgIndex = messages.findIndex((m) => m.id === messageId);
+      if (msgIndex === -1) return;
+
+      const updatedUserMsg: Message = {
+        ...messages[msgIndex],
+        content: newText,
+      };
+
+      const truncatedMessages = [...messages.slice(0, msgIndex), updatedUserMsg];
+      setMessages(truncatedMessages);
+      setThinking(true);
+
+      try {
+        const history = messages.slice(0, msgIndex).map((m) => ({
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.content,
+        }));
+
+        const res = await fetch("/api/resolve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            studentName: "User",
+            skillLevel: "Intermediate",
+            doubtText: newText,
+            files: [],
+            history,
+          }),
+        });
+
+        const json = await res.json();
+        setThinking(false);
+
+        if (json.success) {
+          const ai = json.aiResponse;
+
+          let fullContent = ai.response_text || "";
+          if (ai.code_snippet) {
+            fullContent += `\n\n\`\`\`\n${ai.code_snippet}\n\`\`\``;
+          }
+
+          const extras: string[] = [];
+          if (ai.root_cause && ai.root_cause !== "Architectural Question") {
+            extras.push(`> **Root cause:** ${ai.root_cause}`);
+          }
+          if (ai.concept_link) {
+            extras.push(`> **Reference:** ${ai.concept_link}`);
+          }
+          if (ai.follow_up_question) {
+            extras.push(`\n*Follow-up: ${ai.follow_up_question}*`);
+          }
+          if (extras.length) fullContent += "\n\n" + extras.join("\n");
+
+          const aiMsgId = uid();
+
+          setMessages((prev) => [
+            ...prev,
+            { id: aiMsgId, role: "assistant", content: "", isStreaming: true },
+          ]);
+
+          let i = 0;
+          const total = fullContent.length;
+          const intervalMs = 12;
+          const stream = setInterval(() => {
+            const increment = total > 1500 ? 12 : total > 600 ? 6 : 3;
+            i += increment;
+
+            const chunk = fullContent.slice(0, i);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aiMsgId
+                  ? { ...m, content: chunk, isStreaming: i < total }
+                  : m
+              )
+            );
+            if (i >= total) {
+              clearInterval(stream);
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMsgId
+                    ? { ...m, content: fullContent, isStreaming: false }
+                    : m
+                )
+              );
+              fetchHistory();
+            }
+          }, intervalMs);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: uid(),
+              role: "assistant",
+              content: "Something went wrong processing your request. Please try again.",
+            },
+          ]);
+        }
+      } catch {
+        setThinking(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: uid(),
+            role: "assistant",
+            content: "Failed to connect to the AI engine. Check your connection and try again.",
+          },
+        ]);
+      }
+    },
+    [messages, thinking, fetchHistory]
+  );
+
   const hasMessages = messages.length > 0;
 
   return (
@@ -296,7 +413,11 @@ export default function BlackEyeChat() {
               }}
             >
               {messages.map((msg) => (
-                <ChatMessage key={msg.id} msg={msg} />
+                <ChatMessage 
+                  key={msg.id} 
+                  msg={msg} 
+                  onEditMessage={msg.role === "user" ? handleEditMessage : undefined}
+                />
               ))}
               {thinking && <ThinkingBubble />}
               <div ref={bottomRef} />
