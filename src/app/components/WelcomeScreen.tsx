@@ -1,6 +1,6 @@
 "use client";
 import { Zap, Cpu, Globe, Code2, BookOpen, FlaskConical, Eye } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 const SUGGESTIONS = [
   { icon: Code2,        label: "Debug my code",       prompt: "Help me debug this code and explain what's going wrong:" },
@@ -11,7 +11,7 @@ const SUGGESTIONS = [
   { icon: Zap,          label: "Quick answer",        prompt: "Give me a direct, concise answer to:" },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -22,7 +22,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 16, filter: "blur(4px)" },
   show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };

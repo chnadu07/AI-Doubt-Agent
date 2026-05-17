@@ -558,7 +558,7 @@ export default function Navbar({
                       border: "1px solid rgba(255,255,255,0.06)",
                       color: messages.length === 0 ? "#475569" : "#e2e8f0",
                       fontSize: 12.5, fontWeight: 600,
-                      display: "flex", alignItems: "center", justify: "center", gap: 8,
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                       cursor: messages.length === 0 ? "not-allowed" : "pointer",
                       transition: "all 0.15s",
                     }}
@@ -587,7 +587,7 @@ export default function Navbar({
                       background: "rgba(248,113,113,0.05)",
                       border: "1px solid rgba(248,113,113,0.15)",
                       color: "#f87171", fontSize: 12.5, fontWeight: 600,
-                      display: "flex", alignItems: "center", justify: "center", gap: 8,
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                       cursor: "pointer", transition: "all 0.15s",
                     }}
                     onMouseEnter={(e) => {
