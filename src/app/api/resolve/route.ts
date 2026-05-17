@@ -17,6 +17,7 @@ export async function POST(req: Request) {
       doubtText: body.doubtText || "",
       files: body.files || [],
       channel: "Direct Frontend",
+      history: body.history || [],
     };
 
     // Log the doubt
