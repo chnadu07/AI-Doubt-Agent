@@ -5,6 +5,7 @@ import Background from "./components/Background";
 import WelcomeScreen from "./components/WelcomeScreen";
 import InputDock from "./components/InputDock";
 import Sidebar from "./components/Sidebar";
+import Loader from "./components/Loader";
 import {
   ChatMessage,
   ThinkingBubble,
@@ -26,6 +27,7 @@ let idCounter = 0;
 const uid = () => `msg-${Date.now()}-${idCounter++}`;
 
 export default function BlackEyeChat() {
+  const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [thinking, setThinking] = useState(false);
   const [suggestionPrompt, setSuggestionPrompt] = useState<string | undefined>();
@@ -34,6 +36,13 @@ export default function BlackEyeChat() {
   const [activeChatId, setActiveChatId] = useState<string | undefined>();
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000); // 3 seconds simulated system load
+    return () => clearTimeout(timer);
+  }, []);
 
   /* Auto-scroll */
   const scrollToBottom = useCallback(() => {
@@ -302,6 +311,10 @@ export default function BlackEyeChat() {
     },
     [messages, thinking, fetchHistory]
   );
+
+  if (loading) {
+    return <Loader />;
+  }
 
   const hasMessages = messages.length > 0;
 
